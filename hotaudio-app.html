@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hot Audio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   HOT AUDIO — shared design system
+   Token names match the live site so this ports back cleanly.
+   Each <section data-view> below is a separate "page" —
+   split them into server templates when you wire this up.
+   ============================================================ */
+:root{
+  --radius:12px; --radius-sm:8px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'Space Mono',ui-monospace,monospace;
+}
+html[data-theme='dark']{
+  --primary:#ed662e; --primary-lighter:#f39972; --primary-darker:#bc4410; --primary-muted:#f1cfc0;
+  --surface:#20293a; --surface-lighter:#33415c; --surface-dark:#0e131a; --background:#0e0f11;
+  --foreground:#fbf7f8; --primary-foreground:#111827; --muted:#3e4146; --muted-foreground:#94a3b8;
+  --tag-bg:#bc441033; --wave-dim:#ed662e44; --wave-lit:#ed662e;
+  --shadow:0 20px 50px -20px rgba(0,0,0,.7); --line:color-mix(in srgb,var(--foreground) 8%,transparent);
+}
+html[data-theme='light']{
+  --primary:#e05518; --primary-lighter:#f8ad8c; --primary-darker:#b23f0c; --primary-muted:#9a6242;
+  --surface:#ffffff; --surface-lighter:#f3f1ec; --surface-dark:#ece8e1; --background:#f7f4ee;
+  --foreground:#221c18; --primary-foreground:#ffffff; --muted:#ded8ce; --muted-foreground:#857c72;
+  --tag-bg:#e0551815; --wave-dim:#e0551840; --wave-lit:#e05518;
+  --shadow:0 20px 45px -22px rgba(90,60,30,.35); --line:color-mix(in srgb,var(--foreground) 9%,transparent);
+}
+html[data-theme='stealth']{
+  --primary:#5b6b7f; --primary-lighter:#8695a8; --primary-darker:#445162; --primary-muted:#aab6c4;
+  --surface:#ffffff; --surface-lighter:#f6f8fa; --surface-dark:#eef1f5; --background:#ffffff;
+  --foreground:#2c3644; --primary-foreground:#ffffff; --muted:#e3e8ee; --muted-foreground:#97a2b1;
+  --tag-bg:#5b6b7f12; --wave-dim:#c2ccd8; --wave-lit:#7d8b9c;
+  --shadow:0 10px 30px -18px rgba(40,55,75,.25); --line:color-mix(in srgb,var(--foreground) 10%,transparent);
+}
+html[data-theme='custom']{
+  --primary:#ed662e; --primary-lighter:#f39972; --primary-darker:#bc4410; --primary-muted:#f1cfc0;
+  --surface:#20293a; --surface-lighter:#33415c; --surface-dark:#0e131a; --background:#0e0f11;
+  --foreground:#fbf7f8; --primary-foreground:#111827; --muted:#3e4146; --muted-foreground:#94a3b8;
+  --tag-bg:#bc441033; --wave-dim:#ed662e44; --wave-lit:#ed662e;
+  --shadow:0 20px 50px -20px rgba(0,0,0,.7); --line:color-mix(in srgb,var(--foreground) 8%,transparent);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--background); color:var(--foreground);
+  font-family:var(--font-body); min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .4s var(--ease),color .4s var(--ease);
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important}}
+a{color:inherit}
+
+/* ---------------- NAV ---------------- */
+.nav{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; gap:18px;
+  padding:0 20px; min-height:66px;
+  background:color-mix(in srgb,var(--surface-dark) 92%,transparent);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  transition:background .4s var(--ease);
+}
+.nav__logo{display:flex;align-items:center;flex-shrink:0}
+.nav__logo svg{height:34px;display:block}
+.nav__logo svg path,.nav__logo svg g>path{fill:var(--primary);transition:fill .4s var(--ease)}
+.nav__links{display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav__links::-webkit-scrollbar{display:none}
+.navlink{
+  position:relative; white-space:nowrap;
+  font-size:14px; font-weight:500; text-decoration:none;
+  color:var(--muted-foreground); padding:8px 12px; border-radius:var(--radius-sm);
+  transition:color .2s,background .2s;
+}
+.navlink:hover{color:var(--foreground);background:color-mix(in srgb,var(--foreground) 6%,transparent)}
+.navlink.active{color:var(--foreground)}
+.navlink.active::after{
+  content:''; position:absolute; left:12px; right:12px; bottom:-1px; height:2px;
+  background:var(--primary); border-radius:2px;
+}
+.nav__spacer{flex:1}
+.nav__right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.cta{
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--primary); color:var(--primary-foreground);
+  font-weight:600; font-size:14px; text-decoration:none;
+  padding:9px 15px; border-radius:999px; border:none; cursor:pointer;
+  transition:background .2s,transform .1s;
+}
+.cta:hover{background:var(--primary-lighter)}
+.cta:active{transform:scale(.97)}
+.cta svg{width:16px;height:16px}
+
+.icon-btn{
+  position:relative; width:40px; height:40px; display:grid; place-items:center;
+  border:none; background:transparent; color:var(--muted-foreground);
+  border-radius:999px; cursor:pointer; text-decoration:none;
+  transition:color .2s,background .2s;
+}
+.icon-btn:hover{color:var(--foreground);background:color-mix(in srgb,var(--foreground) 6%,transparent)}
+.icon-btn svg{width:20px;height:20px}
+.icon-btn .dot{position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--primary);display:none}
+.icon-btn .dot.on{display:block}
+
+/* profile menu */
+.profile{position:relative}
+.profile__btn{
+  display:flex;align-items:center;gap:8px;border:none;background:transparent;cursor:pointer;
+  color:var(--foreground);padding:5px 8px 5px 5px;border-radius:999px;
+  transition:background .2s;
+}
+.profile__btn:hover{background:color-mix(in srgb,var(--foreground) 6%,transparent)}
+.avatar{
+  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  background:var(--primary);color:var(--primary-foreground);
+  font-family:var(--font-display);font-weight:700;font-size:13px;
+}
+.profile__name{font-size:14px;font-weight:500}
+.menu{
+  position:absolute;top:calc(100% + 8px);right:0;min-width:170px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:6px;z-index:70;
+}
+.menu[hidden]{display:none}
+.menu a,.menu button{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:9px 11px;border:none;background:transparent;color:var(--foreground);
+  font-size:14px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;font-family:inherit;
+}
+.menu a:hover,.menu button:hover{background:color-mix(in srgb,var(--foreground) 7%,transparent)}
+.menu svg{width:16px;height:16px;color:var(--muted-foreground)}
+.menu hr{border:none;border-top:1px solid var(--line);margin:5px 4px}
+.menu .danger{color:var(--primary)}
+
+/* theme pill */
+.theme-pill{
+  position:relative;display:inline-flex;align-items:center;gap:2px;padding:4px;
+  background:color-mix(in srgb,var(--surface) 70%,transparent);
+  border:1px solid var(--line);border-radius:999px;
+}
+.theme-pill__ind{
+  position:absolute;top:4px;left:4px;width:34px;height:34px;border-radius:999px;
+  background:var(--primary);box-shadow:0 4px 12px -4px color-mix(in srgb,var(--primary) 70%,transparent);
+  transition:transform .42s var(--ease),background .4s var(--ease);z-index:0;
+}
+.theme-opt{
+  position:relative;z-index:1;width:34px;height:34px;display:grid;place-items:center;
+  border:none;background:transparent;color:var(--muted-foreground);cursor:pointer;border-radius:999px;
+  transition:color .3s var(--ease);
+}
+.theme-opt svg{width:17px;height:17px}
+.theme-opt:hover{color:var(--foreground)}
+.theme-opt[aria-selected='true']{color:var(--primary-foreground)}
+.theme-opt:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+/* custom theme editor */
+.editor{
+  position:fixed;top:74px;right:20px;width:264px;z-index:80;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px;
+}
+.editor[hidden]{display:none}
+.editor.enter{animation:pop .2s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(-6px)}to{opacity:1;transform:none}}
+.editor__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.editor__title{font-family:var(--font-display);font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--primary)}
+.editor__close{border:none;background:transparent;color:var(--muted-foreground);cursor:pointer;font-size:15px;padding:4px}
+.editor__close:hover{color:var(--foreground)}
+.field{margin-bottom:13px}
+.field__label{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:6px}
+.field__row{display:flex;align-items:center;gap:8px;padding:5px;border:1px solid var(--line);border-radius:var(--radius-sm);background:color-mix(in srgb,var(--foreground) 4%,transparent)}
+.swatch{width:36px;height:36px;border-radius:6px;border:none;padding:0;cursor:pointer;background:transparent}
+.swatch::-webkit-color-swatch-wrapper{padding:0}
+.swatch::-webkit-color-swatch{border:1px solid rgba(128,128,128,.3);border-radius:6px}
+.hex{flex:1;min-width:0;background:transparent;border:none;color:var(--foreground);font-family:var(--font-mono);font-size:12px;text-transform:uppercase;padding:4px}
+.hex:focus{outline:none}
+.btn-full{width:100%;padding:11px;border:none;border-radius:var(--radius-sm);background:var(--primary);color:var(--primary-foreground);font-family:var(--font-display);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .1s}
+.btn-full:hover{background:var(--primary-lighter)}
+.btn-full:active{transform:scale(.98)}
+
+/* ---------------- LAYOUT ---------------- */
+main{max-width:760px;margin:0 auto;padding:34px 20px 80px}
+section[data-view]{display:none}
+section[data-view].active{display:block;animation:fade .3s var(--ease)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);margin-bottom:10px}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--primary)}
+.h1{font-family:var(--font-display);font-size:clamp(24px,4vw,32px);font-weight:600;letter-spacing:-.01em;line-height:1.1}
+.sub{color:var(--muted-foreground);font-size:14px;margin-top:6px}
+
+/* search + segmented */
+.searchbar{display:flex;gap:10px;margin-bottom:16px}
+.search{
+  flex:1;display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 16px;height:46px;
+}
+.search svg{width:18px;height:18px;color:var(--muted-foreground);flex-shrink:0}
+.search input{flex:1;background:transparent;border:none;color:var(--foreground);font-size:15px;font-family:inherit}
+.search input:focus{outline:none}
+.search input::placeholder{color:var(--muted-foreground)}
+
+.segmented{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg{
+  border:none;background:transparent;color:var(--muted-foreground);
+  font-size:13px;font-weight:500;font-family:inherit;padding:7px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;
+  transition:color .2s,background .2s;
+}
+.seg:hover{color:var(--foreground)}
+.seg.on{background:var(--primary);color:var(--primary-foreground)}
+.seg .arrow{font-size:10px;opacity:.8;margin-left:3px}
+
+.chip-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--surface);border:1px solid color-mix(in srgb,var(--primary) 40%,transparent);
+  color:var(--foreground);font-size:13px;font-weight:500;font-family:inherit;
+  padding:8px 13px;border-radius:999px;cursor:pointer;transition:background .2s;
+}
+.chip-btn:hover{background:color-mix(in srgb,var(--primary) 12%,transparent)}
+
+/* cards / feed */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);transition:background .4s var(--ease)}
+.stat-line{
+  text-align:center;font-family:var(--font-mono);font-size:12px;letter-spacing:.05em;
+  color:var(--muted-foreground);margin-bottom:16px;
+}
+.stat-line b{color:var(--foreground)}
+
+.post{
+  display:block;text-decoration:none;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;transition:border-color .2s,transform .1s;
+}
+.post:hover{border-color:color-mix(in srgb,var(--primary) 45%,transparent)}
+.post__row{display:flex;gap:14px;align-items:flex-start}
+.post__play{
+  flex-shrink:0;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary);
+}
+.post__play svg{width:20px;height:20px}
+.post__body{min-width:0;flex:1}
+.post__title{font-family:var(--font-display);font-size:17px;font-weight:600;line-height:1.25;margin-bottom:6px}
+.post:hover .post__title{color:var(--primary)}
+.post__meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted-foreground);margin-bottom:9px}
+.post__meta .k{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-right:4px}
+.post__meta a{color:var(--primary);text-decoration:none;font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--tag-bg);color:var(--foreground);text-decoration:none;border:1px solid color-mix(in srgb,var(--primary) 20%,transparent)}
+.tag--type{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary);font-weight:700}
+.teaser{font-size:13.5px;line-height:1.55;color:var(--muted-foreground)}
+
+/* empty states */
+.empty{
+  background:var(--surface);border:1px dashed color-mix(in srgb,var(--foreground) 16%,transparent);
+  border-radius:var(--radius);padding:40px 24px;text-align:center;
+}
+.empty svg{width:40px;height:40px;color:var(--muted-foreground);opacity:.7;margin-bottom:12px}
+.empty__title{font-family:var(--font-display);font-weight:600;font-size:16px;margin-bottom:5px}
+.empty__text{color:var(--muted-foreground);font-size:14px;margin-bottom:16px;max-width:340px;margin-left:auto;margin-right:auto}
+
+/* section blocks (lists page) */
+.block{margin-bottom:30px}
+.block__head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.block__title{font-family:var(--font-display);font-size:19px;font-weight:600}
+.block__title span{font-family:var(--font-body);font-weight:400;font-size:13px;color:var(--muted-foreground);margin-left:8px}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--line);
+  color:var(--foreground);font-size:13px;font-weight:500;font-family:inherit;padding:8px 13px;border-radius:999px;cursor:pointer;transition:border-color .2s,background .2s;
+}
+.btn-ghost:hover{border-color:color-mix(in srgb,var(--primary) 45%,transparent);background:color-mix(in srgb,var(--primary) 8%,transparent)}
+.btn-ghost svg{width:15px;height:15px}
+
+/* profile */
+.profile-card{padding:24px;margin-bottom:20px}
+.profile-card__top{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.profile-card .big-avatar{width:60px;height:60px;border-radius:16px;font-size:26px}
+.profile-card__name{font-family:var(--font-display);font-size:26px;font-weight:700;display:flex;align-items:center;gap:12px}
+.reddit{display:inline-flex}
+.reddit svg{width:26px;height:26px}
+.meta-row{display:flex;flex-wrap:wrap;gap:22px;padding:14px 0;border-top:1px solid var(--line);margin-top:6px}
+.meta-row .k{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-foreground);display:block;margin-bottom:3px}
+.meta-row .v{font-size:14px;font-weight:500}
+.bio{font-size:14px;color:var(--muted-foreground);font-style:italic;padding-top:4px}
+.row-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.text-link{background:transparent;border:none;color:var(--muted-foreground);font-size:13px;font-family:inherit;cursor:pointer;padding:6px 8px;border-radius:6px}
+.text-link:hover{color:var(--foreground);background:color-mix(in srgb,var(--foreground) 6%,transparent)}
+
+/* ---------------- POST FORM ---------------- */
+.post-grid{display:grid;grid-template-columns:1fr;gap:20px}
+@media (min-width:900px){main.wide{max-width:1080px} .post-grid{grid-template-columns:1.05fr .95fr}}
+.form-card{padding:22px}
+.flabel{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;margin:14px 0 6px}
+.flabel:first-child{margin-top:0}
+.flabel .count{font-family:var(--font-mono);font-size:11px;color:var(--muted-foreground);font-weight:400}
+.inp,.ta,.sel{
+  width:100%;background:var(--background);border:1px solid var(--line);border-radius:var(--radius-sm);
+  color:var(--foreground);font-family:inherit;font-size:14px;padding:11px 13px;transition:border-color .2s;
+}
+.inp:focus,.ta:focus,.sel:focus{outline:none;border-color:color-mix(in srgb,var(--primary) 55%,transparent)}
+.ta{resize:vertical;min-height:58px;line-height:1.5}
+.ta.tall{min-height:150px}
+.hint{font-size:12px;color:var(--muted-foreground);margin-top:5px}
+.hint.warn{color:var(--primary)}
+.embed-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+.mini{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--radius-sm);padding:7px 11px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:filter .15s,transform .1s}
+.mini:active{transform:scale(.97)}
+.mini svg{width:14px;height:14px}
+.mini--audio{background:#1f9d5522;color:#3ecf8e;border:1px solid #2e9d6644}
+.mini--audio:hover{background:#1f9d5533}
+.mini--list{background:color-mix(in srgb,var(--primary) 18%,transparent);color:var(--primary);border:1px solid color-mix(in srgb,var(--primary) 40%,transparent)}
+.mini--help{background:#3b82f622;color:#7ab0ff;border:1px solid #3b82f644}
+
+.required-banner{
+  display:flex;align-items:center;gap:10px;margin:14px 0;padding:11px 14px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;border:1px solid;
+}
+.required-banner.pending{background:color-mix(in srgb,var(--primary) 10%,transparent);border-color:color-mix(in srgb,var(--primary) 35%,transparent);color:var(--primary)}
+.required-banner.done{background:#1f9d5518;border-color:#2e9d6655;color:#3ecf8e}
+.required-banner svg{width:17px;height:17px;flex-shrink:0}
+
+.access-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+@media (max-width:520px){.access-grid{grid-template-columns:1fr}}
+.access-item .k{font-size:13px;font-weight:600;display:block;margin-bottom:2px}
+.access-item .d{font-size:12px;color:var(--muted-foreground);margin-bottom:7px;display:block}
+
+.preview-card{padding:22px}
+.preview-empty{color:var(--muted-foreground);font-size:14px;text-align:center;padding:30px 0}
+
+.divider{height:1px;background:var(--line);margin:20px 0}
+
+/* stealth: neutralize explicit-leaning text if present */
+html[data-theme='stealth'] .nsfw{filter:blur(5px);transition:filter .15s}
+html[data-theme='stealth'] .nsfw:hover{filter:none}
+
+@media (max-width:680px){
+  .nav{flex-wrap:wrap;padding:8px 14px;gap:10px}
+  .nav__links{order:3;width:100%;padding-bottom:2px}
+  .profile__name{display:none}
+  .editor{right:12px;top:auto;bottom:16px}
+}
+
+/* ---- cover art on cards ---- */
+.cover{position:relative;flex-shrink:0;width:60px;height:60px;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--primary-darker))}
+.cover--b{background:linear-gradient(135deg,#6d5bd0,#3a2f7a)}
+.cover--c{background:linear-gradient(135deg,#1f9d84,#0f5e5a)}
+.cover__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.cover__img[hidden]{display:none}
+.cover__play{position:relative;z-index:1;width:22px;height:22px;color:#fff;opacity:.92;filter:drop-shadow(0 1px 3px rgba(0,0,0,.55));transition:transform .15s}
+.cover::after{content:'';position:absolute;inset:0;z-index:0;background:rgba(0,0,0,0);transition:background .2s}
+.post:hover .cover::after{background:rgba(0,0,0,.28)}
+.post:hover .cover__play{transform:scale(1.14)}
+
+/* ---- composer cover picker ---- */
+.cover-pick{display:flex;align-items:flex-start;gap:14px;margin-bottom:4px}
+.cover-thumb{position:relative;width:76px;height:76px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;display:grid;place-items:center;background:color-mix(in srgb,var(--foreground) 5%,transparent);border:1px dashed color-mix(in srgb,var(--foreground) 24%,transparent);cursor:pointer;transition:border-color .2s}
+.cover-thumb:hover{border-color:color-mix(in srgb,var(--primary) 55%,transparent)}
+.cover-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover-thumb img[hidden]{display:none}
+.cover-thumb svg{width:22px;height:22px;color:var(--muted-foreground)}
+.cover-pick__info{font-size:12.5px;color:var(--muted-foreground);padding-top:2px}
+.cover-pick__info b{color:var(--foreground);font-weight:600;display:block;font-size:13px;margin-bottom:3px}
+.mini--ghost{background:transparent;color:var(--muted-foreground);border:1px solid var(--line);margin-top:8px}
+.mini--ghost:hover{color:var(--foreground)}
+.mini--ghost[hidden]{display:none}
+
+/* ---- now playing (listen view) ---- */
+.np{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+.np-cover{position:relative;width:190px;height:190px;flex-shrink:0;border-radius:var(--radius);overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--primary-darker));box-shadow:var(--shadow)}
+.np-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.np-cover img[hidden]{display:none}
+.np-cover svg{width:54px;height:54px;color:#fff;opacity:.85}
+.np-body{flex:1;min-width:260px}
+.np-title{font-family:var(--font-display);font-size:clamp(20px,3vw,26px);font-weight:600;line-height:1.2;margin-bottom:4px}
+.np-meta{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--muted-foreground);padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:12px 0}
+.np-meta .k{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-right:5px}
+.np-meta a{color:var(--primary);text-decoration:none}
+.np-teaser{font-size:14px;line-height:1.6;color:var(--muted-foreground);margin-top:14px}
+@media (max-width:560px){.np-cover{width:100%;height:auto;aspect-ratio:1}}
+
+/* ---- player bar (listen view only) ---- */
+.player{display:none}
+body.view-listen main{padding-bottom:172px}
+body.view-listen .player{
+  display:block;position:fixed;left:50%;transform:translateX(-50%);bottom:0;
+  width:100%;max-width:900px;z-index:55;
+  background:var(--surface);border-top:3px solid var(--primary);
+  border-left:1px solid var(--line);border-right:1px solid var(--line);
+  border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);
+  box-shadow:0 -18px 40px -24px rgba(0,0,0,.6);overflow:hidden;
+}
+.waveform{position:relative;height:72px;background:var(--surface-dark);display:flex;align-items:center;gap:2px;padding:0 14px;cursor:pointer;overflow:hidden;transition:background .4s var(--ease)}
+.wave-bar{flex:1;border-radius:2px;background:var(--wave-dim);transition:background .12s linear}
+.wave-bar.lit{background:var(--wave-lit)}
+.wave-time{position:absolute;right:14px;top:7px;font-family:var(--font-mono);font-size:12px;color:var(--foreground);background:color-mix(in srgb,var(--surface-dark) 70%,transparent);padding:2px 8px;border-radius:6px;pointer-events:none}
+.controls{display:flex;align-items:center;gap:4px;padding:9px 12px;min-height:62px}
+.ctrl{width:42px;height:42px;display:grid;place-items:center;border:none;background:transparent;color:var(--muted-foreground);cursor:pointer;border-radius:10px;transition:color .2s,background .2s}
+.ctrl:hover{color:var(--foreground);background:color-mix(in srgb,var(--foreground) 6%,transparent)}
+.ctrl svg{width:20px;height:20px}
+.ctrl--play{width:50px;height:50px;color:var(--primary)}
+.ctrl--play svg{width:44px;height:44px}
+.ctrl--play:hover{background:transparent;color:var(--primary-lighter)}
+.ctrl.active{color:var(--primary)}
+.pl-cover{position:relative;width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;margin:0 4px;background:linear-gradient(135deg,var(--primary),var(--primary-darker))}
+.pl-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pl-cover img[hidden]{display:none}
+.pl-title{flex:1;min-width:0;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.speed-badge{font-family:var(--font-mono);font-size:12px;padding:6px 8px;border-radius:8px;color:var(--muted-foreground);cursor:pointer;user-select:none}
+.speed-badge:hover{color:var(--foreground);background:color-mix(in srgb,var(--foreground) 6%,transparent)}
+.vol{display:flex;align-items:center;gap:8px;min-width:100px;max-width:150px;margin-left:auto}
+.vol svg{flex-shrink:0}
+.vol input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:999px;background:color-mix(in srgb,var(--foreground) 15%,transparent);cursor:pointer}
+.vol input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--primary)}
+.vol input[type=range]::-moz-range-thumb{width:15px;height:15px;border:none;border-radius:50%;background:var(--primary)}
+@media (max-width:560px){.vol{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV (shared across all views) ============ -->
+<nav class="nav">
+  <a class="nav__logo" href="#home" aria-label="Hot Audio home">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 339.58 61.15" height="34">
+      <defs><clipPath id="a"><path d="M0 0h71v61.148H0Zm0 0"/></clipPath></defs>
+      <g clip-path="url(#a)"><path d="M66.89 27.129c-1.722-1.727-2.46-3.45-2.46-5.91V0H45.453v21.398h-8.808l5.046 16.434h-13.43l4.993-16.434h-8.45V0H5.91v21.219c0 2.46-.738 4.183-2.46 5.91L0 30.574l3.45 3.45c1.722 1.726 2.46 3.449 2.46 5.91v21.214h15.266l2.984-10.093h21.45l3.062 10.093H64.43V39.934c0-2.461.738-4.184 2.46-5.91l3.45-3.45-3.45-3.445"/></g>
+      <path d="M104.184 26.14h-9.985V15.794h-9.136V45.36h9.136V33.4h9.985v11.96h9.175V15.793h-9.175v10.348m33.98 10.969c-1.074 1.277-2.594 1.917-4.555 1.917-1.91 0-3.422-.652-4.53-1.957-1.106-1.304-1.665-3.449-1.665-6.433 0-3.012.559-5.172 1.676-6.477 1.117-1.3 2.594-1.953 4.437-1.953 1.922 0 3.446.64 4.567 1.926 1.125 1.281 1.683 3.316 1.683 6.101 0 3.305-.535 5.598-1.613 6.875Zm-4.617-21.82c-4.8 0-8.543 1.343-11.234 4.03-2.688 2.692-4.032 6.45-4.032 11.274 0 3.457.68 6.336 2.035 8.633 1.36 2.3 3.13 3.98 5.317 5.043 2.183 1.062 4.941 1.593 8.277 1.593 3.281 0 6.02-.617 8.219-1.843 2.2-1.235 3.879-2.954 5.043-5.165 1.164-2.21 1.742-5.046 1.742-8.503 0-4.758-1.328-8.457-3.992-11.102-2.66-2.64-6.453-3.96-11.375-3.96m17.144 7.804h9.317v22.265h9.137V23.094h9.316v-7.301h-27.77v7.3m55.465 10.993 3.23-10.629 3.266 10.629Zm-1.636-18.293-11.114 29.566h9.328l1.442-4.882h10.37l1.481 4.882h9.567l-11.11-29.566h-9.964m41.804 18.035c0 1.637-.445 2.902-1.34 3.797-.894.895-2.129 1.34-3.699 1.34-1.59 0-2.828-.453-3.722-1.36-.895-.906-1.34-2.164-1.34-3.777V15.793h-9.118v17.613c0 1.453.282 3.117.848 5 .348 1.168.996 2.305 1.945 3.407.95 1.101 1.993 1.953 3.137 2.55 1.145.594 2.567.996 4.266 1.196 1.703.203 3.27.304 4.71.304 2.485 0 4.618-.332 6.391-.988 1.278-.469 2.5-1.285 3.66-2.45a10.694 10.694 0 0 0 2.563-4.07c.543-1.55.816-3.203.816-4.949V15.793h-9.117v18.035m32.633 1.962c-.457 1.054-1.09 1.796-1.894 2.218-.81.422-2.165.637-4.075.637h-2.238V22.488h2.277c2.368 0 4.063.578 5.082 1.735 1.024 1.156 1.536 3.3 1.536 6.433 0 2.367-.23 4.078-.688 5.133Zm6.797-15.782c-1.074-1.36-2.438-2.403-4.082-3.125-1.649-.727-3.809-1.09-6.485-1.09h-13.574v29.566h13.575c1.625 0 3.44-.27 5.445-.808 1.465-.39 2.836-1.172 4.113-2.348 1.277-1.176 2.274-2.637 2.996-4.379.719-1.738 1.078-4.191 1.078-7.351 0-2.016-.242-3.926-.726-5.727-.485-1.8-1.266-3.379-2.34-4.738m8.23 25.352h9.157V15.792h-9.157v29.566M328.43 37.11c-1.075 1.277-2.594 1.917-4.559 1.917-1.91 0-3.418-.652-4.527-1.957-1.11-1.304-1.664-3.449-1.664-6.433 0-3.012.558-5.172 1.675-6.477 1.114-1.3 2.594-1.953 4.434-1.953 1.926 0 3.445.64 4.57 1.926 1.121 1.281 1.684 3.316 1.684 6.101 0 3.305-.54 5.598-1.613 6.875Zm6.754-17.86c-2.66-2.64-6.454-3.96-11.372-3.96-4.8 0-8.546 1.343-11.234 4.03-2.691 2.692-4.035 6.45-4.035 11.274 0 3.457.68 6.336 2.039 8.633 1.356 2.3 3.129 3.98 5.313 5.043 2.183 1.062 4.945 1.593 8.28 1.593 3.278 0 6.02-.617 8.216-1.843 2.199-1.235 3.879-2.954 5.043-5.165 1.164-2.21 1.746-5.046 1.746-8.503 0-4.758-1.332-8.457-3.996-11.102"/>
+    </svg>
+  </a>
+
+  <div class="nav__links" id="navLinks">
+    <a class="navlink" href="#home" data-nav="home">Home</a>
+    <a class="navlink" href="#audios" data-nav="audios">Audios</a>
+    <a class="navlink" href="#lists" data-nav="lists">Lists</a>
+    <a class="navlink" href="#upload" data-nav="upload">Upload</a>
+  </div>
+
+  <div class="nav__spacer"></div>
+
+  <div class="nav__right">
+    <a class="cta" href="#post">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      New post
+    </a>
+
+    <a class="icon-btn" href="#notifications" aria-label="Notifications" title="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="dot" id="notifDot"></span>
+    </a>
+
+    <div class="profile">
+      <button class="profile__btn" id="profileBtn" aria-haspopup="true" aria-expanded="false">
+        <span class="avatar">I</span>
+        <span class="profile__name">Isapeth</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="menu" id="profileMenu" hidden>
+        <a href="#profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</a>
+        <a href="#audios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>My audios</a>
+        <hr>
+        <button class="danger" id="logoutBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Log out</button>
+      </div>
+    </div>
+
+    <div class="theme-pill" role="tablist" aria-label="Theme">
+      <span class="theme-pill__ind" id="pillInd" aria-hidden="true"></span>
+      <button class="theme-opt" data-set="light" role="tab" aria-selected="false" aria-label="Light mode" title="Light">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>
+      </button>
+      <button class="theme-opt" data-set="dark" role="tab" aria-selected="true" aria-label="Dark mode" title="Dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a6.7 6.7 0 0 0 10.8 10.8Z"/></svg>
+      </button>
+      <button class="theme-opt" data-set="stealth" role="tab" aria-selected="false" aria-label="Stealth mode" title="Stealth">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16"/><path d="M6.5 13c.4-3.3.9-5 5.5-5s5.1 1.7 5.5 5"/><circle cx="8" cy="16" r="2.4"/><circle cx="16" cy="16" r="2.4"/><path d="M10.4 16c.5-.8 2.7-.8 3.2 0"/></svg>
+      </button>
+      <button class="theme-opt" data-set="custom" role="tab" aria-selected="false" aria-label="Custom theme" title="Custom">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- custom theme editor -->
+<div class="editor" id="editor" hidden>
+  <div class="editor__head"><span class="editor__title">Custom Theme</span><button class="editor__close" id="editorClose" aria-label="Close">✕</button></div>
+  <div class="field"><label class="field__label">Accent color</label><div class="field__row"><input type="color" class="swatch" id="swPrimary" value="#ed662e"><input type="text" class="hex" id="hexPrimary" value="#ED662E" maxlength="7" spellcheck="false"></div></div>
+  <div class="field"><label class="field__label">Surface color</label><div class="field__row"><input type="color" class="swatch" id="swSurface" value="#20293a"><input type="text" class="hex" id="hexSurface" value="#20293A" maxlength="7" spellcheck="false"></div></div>
+  <div class="field"><label class="field__label">Background color</label><div class="field__row"><input type="color" class="swatch" id="swBg" value="#0e0f11"><input type="text" class="hex" id="hexBg" value="#0E0F11" maxlength="7" spellcheck="false"></div></div>
+  <button class="btn-full" id="editorSave">Save theme</button>
+</div>
+
+<main id="main">
+
+  <!-- ============ HOME / FEED ============ -->
+  <section data-view="home" class="active">
+    <div class="page-head">
+      <div>
+        <span class="eyebrow">Front page</span>
+        <h1 class="h1">Fresh audio</h1>
+      </div>
+      <div class="segmented" role="tablist" aria-label="Feed sort">
+        <button class="seg on" data-feed="hot">Hot</button>
+        <button class="seg" data-feed="new">New</button>
+      </div>
+    </div>
+
+    <div class="searchbar">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search audios, tags, creators…">
+      </label>
+      <button class="chip-btn" title="Choose which tags you see">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+        Tag filters
+      </button>
+    </div>
+
+    <!-- placeholder feed cards -->
+    <a class="post" href="#listen">
+      <div class="post__row">
+        <span class="cover" id="feedCover1"><img class="cover__img" id="feedImg1" hidden alt=""><svg class="cover__play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="post__body">
+          <div class="post__title">Post title here</div>
+          <div class="post__meta"><span><span class="k">by</span><a href="#profile">Creator name</a></span><span><span class="k">len</span>00m</span><span><span class="k">on</span>YYYY-MM-DD</span></div>
+          <div class="tags"><span class="tag tag--type">Type</span><span class="tag">Tag 1</span><span class="tag">Tag 2</span><span class="tag">Tag 3</span><span class="tag">Tag 4</span></div>
+          <div class="teaser">Short teaser / synopsis goes here — a one or two line hook that summarizes the audio.</div>
+        </div>
+      </div>
+    </a>
+    <a class="post" href="#listen">
+      <div class="post__row">
+        <span class="cover cover--b"><svg class="cover__play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="post__body">
+          <div class="post__title">Another post title here</div>
+          <div class="post__meta"><span><span class="k">by</span><a href="#profile">Creator name</a></span><span><span class="k">script</span><a href="#profile">Writer name</a></span><span><span class="k">len</span>00m</span></div>
+          <div class="tags"><span class="tag tag--type">Type</span><span class="tag">Tag 1</span><span class="tag">Tag 2</span><span class="tag">Tag 3</span></div>
+          <div class="teaser">Teaser text here. Keep it to a couple of lines so cards stay scannable in the feed.</div>
+        </div>
+      </div>
+    </a>
+    <a class="post" href="#listen">
+      <div class="post__row">
+        <span class="cover cover--c"><svg class="cover__play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="post__body">
+          <div class="post__title">A third example card</div>
+          <div class="post__meta"><span><span class="k">by</span><a href="#profile">Creator name</a></span><span><span class="k">len</span>00m</span><span><span class="k">on</span>YYYY-MM-DD</span></div>
+          <div class="tags"><span class="tag tag--type">Type</span><span class="tag">Tag 1</span><span class="tag">Tag 2</span></div>
+          <div class="teaser">Teaser text here.</div>
+        </div>
+      </div>
+    </a>
+  </section>
+
+  <!-- ============ AUDIOS ============ -->
+  <section data-view="audios">
+    <div class="page-head">
+      <div><span class="eyebrow">Your library</span><h1 class="h1">Audios</h1></div>
+      <a class="cta" href="#upload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>Upload audio</a>
+    </div>
+
+    <div class="stat-line"><b>0</b> audios · <b>0</b> minutes · <b>0</b> plays</div>
+
+    <div class="searchbar">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search your audios…">
+      </label>
+    </div>
+
+    <div style="display:flex;justify-content:center;margin-bottom:20px">
+      <div class="segmented" aria-label="Sort audios">
+        <button class="seg on" data-sort="uploaded">Uploaded <span class="arrow">▼</span></button>
+        <button class="seg" data-sort="length">Length</button>
+        <button class="seg" data-sort="plays">Plays</button>
+      </div>
+    </div>
+
+    <div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <div class="empty__title">No audios yet</div>
+      <div class="empty__text">Upload your first file and it'll show up here with its play count and length.</div>
+      <a class="cta" href="#upload" style="text-decoration:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>Upload audio</a>
+    </div>
+  </section>
+
+  <!-- ============ LISTS ============ -->
+  <section data-view="lists">
+    <div class="page-head"><div><span class="eyebrow">Organize</span><h1 class="h1">Lists</h1></div></div>
+
+    <div class="searchbar">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search lists…">
+      </label>
+    </div>
+
+    <div class="block">
+      <div class="block__head">
+        <div class="block__title">Playlists <span>groups of audios</span></div>
+        <button class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Create</button>
+      </div>
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6a2 2 0 0 0-2-2H9"/><path d="M3 8v11a2 2 0 0 0 2 2h11"/><path d="m8 12 4 2-4 2z"/></svg>
+        <div class="empty__title">No playlists</div>
+        <div class="empty__text">Group related audios into a playlist so listeners can play them back to back.</div>
+        <button class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Create playlist</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block__head">
+        <div class="block__title">Listeners <span>groups of users to control access</span></div>
+        <button class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Create</button>
+      </div>
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.5 3.5 0 0 1 0 7M22 20a6.5 6.5 0 0 0-4-6"/></svg>
+        <div class="empty__title">No listener groups</div>
+        <div class="empty__text">Make a group of users, then grant or restrict who can play a given post.</div>
+        <button class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Create group</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NEW POST ============ -->
+  <section data-view="post">
+    <div class="page-head"><div><span class="eyebrow">Publish</span><h1 class="h1">New post</h1></div></div>
+
+    <div class="post-grid">
+      <!-- form -->
+      <div class="card form-card">
+        <div class="flabel"><span>Title</span><span class="count"><b id="cTitle">0</b>/100</span></div>
+        <input class="inp" id="fTitle" maxlength="100" placeholder="Give your post a title">
+
+        <div class="flabel"><span>Cover image</span><span class="count">optional</span></div>
+        <div class="cover-pick">
+          <label class="cover-thumb" id="coverThumb" title="Choose a cover image">
+            <img id="coverThumbImg" hidden alt="">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <input type="file" accept="image/*" id="coverInput" hidden>
+          </label>
+          <div class="cover-pick__info">
+            <b>Add cover art</b>
+            Appears on your card in the feed and on the player page. Square images look best.
+            <br><button type="button" class="mini mini--ghost" id="coverRemove" hidden>Remove image</button>
+          </div>
+        </div>
+
+        <div class="flabel"><span>Tags</span><span class="count"><b id="cTags">0</b>/100</span></div>
+        <textarea class="ta" id="fTags" maxlength="100" placeholder="tags, separated, by, commas"></textarea>
+        <div class="hint warn">A performer tag (like F4M) is required so the post appears on the front page.</div>
+
+        <div class="flabel"><span>Teaser</span><span class="count"><b id="cTeaser">0</b>/300</span></div>
+        <textarea class="ta" id="fTeaser" maxlength="300" placeholder="Short summary shown on cards. Defaults to the start of your text."></textarea>
+
+        <div class="flabel"><span>Text</span><span class="count"><b id="cText">0</b>/100,000</span></div>
+        <div class="embed-row">
+          <button class="mini mini--audio" id="embedAudio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Embed audio</button>
+          <button class="mini mini--list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Embed list</button>
+          <button class="mini mini--help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 2.5"/><path d="M12 17h.01"/></svg>Formatting help</button>
+        </div>
+        <textarea class="ta tall" id="fText" placeholder="Write your post in markdown, like Reddit."></textarea>
+
+        <div class="required-banner pending" id="audioBanner">
+          <svg id="bannerIconPending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <svg id="bannerIconDone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M20 6 9 17l-5-5"/></svg>
+          <span id="bannerText">No audio embedded yet — click “Embed audio” to add one.</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="eyebrow" style="margin-bottom:12px">Audience &amp; access</div>
+        <div class="access-grid">
+          <div class="access-item">
+            <span class="k">Visibility</span><span class="d">Who can open this post</span>
+            <select class="sel"><option>Anyone</option><option>Logged in only</option><option>Private</option></select>
+          </div>
+          <div class="access-item">
+            <span class="k">Discoverability</span><span class="d">How people find it</span>
+            <select class="sel"><option>Front page (global)</option><option>Your profile only</option><option>Direct link only</option></select>
+          </div>
+          <div class="access-item">
+            <span class="k">Playback</span><span class="d">How the audio plays</span>
+            <select class="sel"><option>Play once</option><option>Loop</option></select>
+          </div>
+          <div class="access-item">
+            <span class="k">Audibility</span><span class="d">Who can hear full audio</span>
+            <select class="sel"><option>Anyone can listen</option><option>Preview only for guests</option><option>Listener groups only</option></select>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <button class="btn-full" style="font-size:14px;padding:13px">Publish post</button>
+      </div>
+
+      <!-- preview -->
+      <div class="card preview-card">
+        <div class="eyebrow" style="margin-bottom:14px">Live preview</div>
+        <div id="previewBox">
+          <div class="preview-empty">Your post will render here as you type.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ UPLOAD ============ -->
+  <section data-view="upload">
+    <div class="page-head"><div><span class="eyebrow">Add audio</span><h1 class="h1">Upload</h1></div></div>
+    <div class="empty" style="padding:52px 24px;cursor:pointer" id="dropZone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>
+      <div class="empty__title">Drop an audio file here</div>
+      <div class="empty__text">or click to browse. Uploaded files land in your Audios library, ready to embed in a post.</div>
+      <button class="cta" style="margin:0 auto">Choose file</button>
+    </div>
+  </section>
+
+  <!-- ============ PROFILE ============ -->
+  <section data-view="profile">
+    <div class="page-head"><div><span class="eyebrow">You</span><h1 class="h1">Profile</h1></div></div>
+
+    <div class="card profile-card">
+      <div class="profile-card__top">
+        <span class="avatar big-avatar">I</span>
+        <div>
+          <div class="profile-card__name">Isapeth
+            <a class="reddit" href="#" title="Reddit" aria-label="Reddit profile">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="#ff4500" d="M128 0A128 128 0 0 0 0 128c0 35.4 14.3 67.3 37.5 90.5L13 243a7.7 7.7 0 0 0 5.4 13.1H128a128 128 0 0 0 0-256Z"/><path fill="#fff" d="M154 60.4a21.3 21.3 0 1 0 0-9.3 34.5 34.5 0 0 0-30.8 34.2v.2c-18.8.7-35.9 6-49.5 14.5a29.9 29.9 0 1 0-31 50.7c1 34.7 38.9 62.6 85.4 62.6s84.3-27.9 85.3-62.6a29.9 29.9 0 1 0-31-50.7c-13.8-8.5-31-13.9-50-14.6 0-12.7 9.4-23.3 21.6-25Zm-81.5 82.2c.5-10.8 7.7-19.1 16-19.1s14.8 8.8 14.3 19.6-6.7 14.8-15 14.8-15.8-4.4-15.3-15.3Zm95-19.1c8.4 0 15.6 8.3 16.1 19.1.5 10.9-6.8 15.3-15.2 15.3s-14.6-4-15.1-14.8 5.9-19.6 14.3-19.6Zm-9.9 44.2c1.6.2 2.6 1.8 2 3.3a34.1 34.1 0 0 1-63 0c-.6-1.5.4-3.1 2-3.3a295.4 295.4 0 0 1 59 0Z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="row-actions">
+          <button class="text-link" id="editProfile">Edit</button>
+          <button class="text-link">Delete</button>
+        </div>
+      </div>
+      <div class="bio" id="bioText">Click “Edit” to set your profile text.</div>
+      <div class="meta-row">
+        <div><span class="k">Registered</span><span class="v">2026-07-07</span></div>
+        <div><span class="k">Audios</span><span class="v">0</span></div>
+        <div><span class="k">Reddit</span><span class="v">Linked</span></div>
+      </div>
+    </div>
+
+    <div class="searchbar">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" value="user:Isapeth " placeholder="Search this profile…">
+      </label>
+      <button class="chip-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+        Tag filters
+      </button>
+    </div>
+
+    <div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <div class="empty__title">No posts yet</div>
+      <div class="empty__text">Everything you publish will appear here on your public profile.</div>
+      <a class="cta" href="#post" style="text-decoration:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New post</a>
+    </div>
+  </section>
+
+  <!-- ============ NOTIFICATIONS ============ -->
+  <section data-view="notifications">
+    <div class="page-head"><div><span class="eyebrow">Activity</span><h1 class="h1">Notifications</h1></div></div>
+    <div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <div class="empty__title">You're all caught up</div>
+      <div class="empty__text">Replies, plays, and follows will show up here.</div>
+    </div>
+  </section>
+
+  <!-- ============ LISTEN / NOW PLAYING ============ -->
+  <section data-view="listen">
+    <div class="np">
+      <div class="np-cover" id="npCover">
+        <img id="npCoverImg" hidden alt="">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
+      <div class="np-body">
+        <span class="eyebrow">Now playing</span>
+        <div class="np-title">Title here</div>
+        <div class="np-meta">
+          <span><span class="k">by</span><a href="#profile">Creator name</a></span>
+          <span><span class="k">length</span>00m</span>
+          <span><span class="k">posted</span>YYYY-MM-DD</span>
+        </div>
+        <div class="tags">
+          <span class="tag tag--type">Type tag</span><span class="tag">Tag 1</span><span class="tag">Tag 2</span><span class="tag">Tag 3</span><span class="tag">Tag 4</span>
+        </div>
+        <div class="np-teaser">Teaser / author notes go here — the description shown alongside the audio post. Use the cover-image picker in “New post” to set the artwork; it shows up here and in the player below.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ PLAYER BAR (visible only on the listen view) ============ -->
+<div class="player" id="player">
+  <div class="waveform" id="waveform" aria-label="Seek"><span class="wave-time" id="waveTime">0:05 / 24:26</span></div>
+  <div class="controls">
+    <button class="ctrl ctrl--play" id="btnPlay" aria-label="Play">
+      <svg id="iconPlay" viewBox="0 0 512 512"><path fill="var(--surface)" d="M128 128h256v256H128z"/><path fill="currentColor" d="M256 0a256 256 0 1 0 0 512 256 256 0 0 0 0-512zm88 270-128 80a16 16 0 0 1-24-14V176a16 16 0 0 1 24-14l128 80a16 16 0 0 1 0 28z"/></svg>
+      <svg id="iconPause" viewBox="0 0 512 512" style="display:none"><path fill="var(--surface)" d="M128 128h256v256H128z"/><path fill="currentColor" d="M256 0a256 256 0 1 0 0 512 256 256 0 0 0 0-512zm-32 320a16 16 0 0 1-16 16h-32a16 16 0 0 1-16-16V192a16 16 0 0 1 16-16h32a16 16 0 0 1 16 16v128zm128 0a16 16 0 0 1-16 16h-32a16 16 0 0 1-16-16V192a16 16 0 0 1 16-16h32a16 16 0 0 1 16 16v128z"/></svg>
+    </button>
+    <button class="ctrl" id="btnBack" aria-label="Rewind 30 seconds" title="Rewind 30s">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><text x="12" y="15.5" font-size="7" fill="currentColor" stroke="none" text-anchor="middle" font-family="monospace">30</text></svg>
+    </button>
+    <button class="ctrl" id="btnLoop" aria-label="Loop" title="Loop" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+    </button>
+    <button class="ctrl" id="btnFwd" aria-label="Skip 30 seconds" title="Skip 30s">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v4h-4"/><text x="12" y="15.5" font-size="7" fill="currentColor" stroke="none" text-anchor="middle" font-family="monospace">30</text></svg>
+    </button>
+    <span class="pl-cover" id="plCover"><img id="plCoverImg" hidden alt=""></span>
+    <span class="pl-title">Title here</span>
+    <span class="speed-badge" id="speedBadge" title="Playback speed">1.0×</span>
+    <div class="vol">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--muted-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <input type="range" id="volume" min="0" max="100" value="80" aria-label="Volume">
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const root=document.documentElement;
+  let appCover=null;
+
+  /* ---- view router (hash based) ---- */
+  const views=Array.from(document.querySelectorAll('section[data-view]'));
+  const navlinks=Array.from(document.querySelectorAll('.navlink'));
+  function show(view){
+    let found=false;
+    views.forEach(s=>{const on=s.dataset.view===view;s.classList.toggle('active',on);if(on)found=true;});
+    if(!found){views.forEach(s=>s.classList.toggle('active',s.dataset.view==='home'));view='home';}
+    navlinks.forEach(a=>a.classList.toggle('active',a.dataset.nav===view));
+    document.body.classList.toggle('view-listen',view==='listen');
+    if(typeof syncCovers==='function')syncCovers();
+    window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'});
+  }
+  function route(){show((location.hash||'#home').slice(1));}
+  window.addEventListener('hashchange',route);
+  route();
+
+  /* ---- theme pill ---- */
+  const ORDER=['light','dark','stealth','custom'];
+  const opts=Array.from(document.querySelectorAll('.theme-opt'));
+  const ind=document.getElementById('pillInd');
+  const editor=document.getElementById('editor');
+  function moveInd(set){ind.style.transform='translateX('+(ORDER.indexOf(set)*36)+'px)';}
+  function setTheme(set){
+    root.setAttribute('data-theme',set);
+    opts.forEach(o=>o.setAttribute('aria-selected',String(o.dataset.set===set)));
+    moveInd(set);
+    if(set!=='custom')closeEditor();
+  }
+  opts.forEach(o=>o.addEventListener('click',()=>{
+    const set=o.dataset.set;
+    if(set==='custom'){setTheme('custom');toggleEditor();}else setTheme(set);
+  }));
+  moveInd('dark');
+
+  /* ---- custom theme editor ---- */
+  const swP=document.getElementById('swPrimary'),swS=document.getElementById('swSurface'),swB=document.getElementById('swBg');
+  const hxP=document.getElementById('hexPrimary'),hxS=document.getElementById('hexSurface'),hxB=document.getElementById('hexBg');
+  function openEditor(){editor.hidden=false;editor.classList.add('enter');}
+  function closeEditor(){editor.hidden=true;editor.classList.remove('enter');}
+  function toggleEditor(){editor.hidden?openEditor():closeEditor();}
+  document.getElementById('editorClose').addEventListener('click',closeEditor);
+  function h2r(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};}
+  function mix(hex,t,a){const x=h2r(hex),y=h2r(t);const r=Math.round(x.r+(y.r-x.r)*a),g=Math.round(x.g+(y.g-x.g)*a),b=Math.round(x.b+(y.b-x.b)*a);return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
+  function lum(hex){const{r,g,b}=h2r(hex);return(0.299*r+0.587*g+0.114*b)/255;}
+  function applyCustom(){
+    const p=swP.value,s=swS.value,bg=swB.value,sl=lum(s);
+    const fg=sl>0.5?'#1a1614':'#fbf7f8',pf=lum(p)>0.55?'#111827':'#ffffff',st=(k,v)=>root.style.setProperty(k,v);
+    st('--primary',p);st('--primary-lighter',mix(p,'#ffffff',.28));st('--primary-darker',mix(p,'#000000',.25));
+    st('--primary-muted',mix(p,sl>0.5?'#000000':'#ffffff',.35));st('--surface',s);
+    st('--surface-lighter',mix(s,sl>0.5?'#000000':'#ffffff',.12));st('--surface-dark',mix(s,'#000000',.35));
+    st('--background',bg);st('--foreground',fg);st('--primary-foreground',pf);
+    st('--muted',mix(s,fg,.2));st('--muted-foreground',mix(fg,s,.45));
+    st('--tag-bg',p+'33');st('--wave-dim',p+'44');st('--wave-lit',p);st('--line',mix(fg,s,.88));
+  }
+  function bind(sw,hx){
+    sw.addEventListener('input',()=>{hx.value=sw.value.toUpperCase();if(root.getAttribute('data-theme')==='custom')applyCustom();});
+    hx.addEventListener('input',()=>{const v=hx.value.trim();if(/^#?[0-9a-fA-F]{6}$/.test(v)){sw.value=v.startsWith('#')?v:'#'+v;if(root.getAttribute('data-theme')==='custom')applyCustom();}});
+  }
+  bind(swP,hxP);bind(swS,hxS);bind(swB,hxB);
+  document.getElementById('editorSave').addEventListener('click',()=>{applyCustom();closeEditor();setTheme('custom');});
+
+  /* ---- profile menu ---- */
+  const pBtn=document.getElementById('profileBtn'),pMenu=document.getElementById('profileMenu');
+  pBtn.addEventListener('click',e=>{e.stopPropagation();const open=pMenu.hidden;pMenu.hidden=!open;pBtn.setAttribute('aria-expanded',String(open));});
+  document.addEventListener('click',()=>{pMenu.hidden=true;pBtn.setAttribute('aria-expanded','false');});
+  pMenu.addEventListener('click',e=>e.stopPropagation());
+  document.getElementById('logoutBtn').addEventListener('click',()=>{pMenu.hidden=true;});
+
+  /* ---- feed Hot/New + sort segmented (visual toggle) ---- */
+  document.querySelectorAll('.segmented').forEach(seg=>{
+    seg.addEventListener('click',e=>{
+      const b=e.target.closest('.seg');if(!b)return;
+      seg.querySelectorAll('.seg').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    });
+  });
+
+  /* ---- profile bio edit ---- */
+  document.getElementById('editProfile').addEventListener('click',()=>{
+    const bio=document.getElementById('bioText');
+    const cur=bio.dataset.set==='1'?bio.textContent:'';
+    const val=prompt('Profile text:',cur);
+    if(val!==null){bio.textContent=val||'Click “Edit” to set your profile text.';bio.dataset.set=val?'1':'';bio.style.fontStyle=val?'normal':'italic';}
+  });
+
+  /* ---- post form: counters + live preview + embed audio ---- */
+  const map=[['fTitle','cTitle'],['fTags','cTags'],['fTeaser','cTeaser'],['fText','cText']];
+  map.forEach(([f,c])=>{const el=document.getElementById(f);el&&el.addEventListener('input',()=>{document.getElementById(c).textContent=el.value.length;updatePreview();});});
+  function esc(s){return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+  function updatePreview(){
+    const t=document.getElementById('fTitle').value.trim();
+    const tags=document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const body=document.getElementById('fText').value.trim()||document.getElementById('fTeaser').value.trim();
+    const box=document.getElementById('previewBox');
+    if(!t&&!tags.length&&!body&&!appCover){box.innerHTML='<div class="preview-empty">Your post will render here as you type.</div>';return;}
+    let html='';
+    if(appCover)html+='<div style="width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;margin-bottom:12px"><img src="'+appCover+'" alt="" style="width:100%;height:100%;object-fit:cover"></div>';
+    if(t)html+='<div class="post__title" style="font-size:20px;margin-bottom:10px">'+esc(t)+'</div>';
+    if(tags.length){html+='<div class="tags">'+tags.map((tg,i)=>'<span class="tag'+(i===0?' tag--type':'')+'">'+esc(tg)+'</span>').join('')+'</div>';}
+    if(body)html+='<div class="teaser" style="margin-top:10px;white-space:pre-wrap">'+esc(body)+'</div>';
+    box.innerHTML=html;
+  }
+  const embedBtn=document.getElementById('embedAudio'),banner=document.getElementById('audioBanner');
+  let hasAudio=false;
+  embedBtn.addEventListener('click',()=>{
+    hasAudio=!hasAudio;
+    banner.classList.toggle('done',hasAudio);banner.classList.toggle('pending',!hasAudio);
+    document.getElementById('bannerIconPending').style.display=hasAudio?'none':'block';
+    document.getElementById('bannerIconDone').style.display=hasAudio?'block':'none';
+    document.getElementById('bannerText').textContent=hasAudio?'Audio embedded — “Audio Track 01” attached to this post.':'No audio embedded yet — click “Embed audio” to add one.';
+    embedBtn.innerHTML=hasAudio
+      ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Audio added'
+      :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Embed audio';
+  });
+
+  /* ---- cover image: picker + sync across feed / player / now-playing ---- */
+  function syncCovers(){
+    ['npCoverImg','plCoverImg','feedImg1'].forEach(id=>{
+      const im=document.getElementById(id);if(!im)return;
+      if(appCover){im.src=appCover;im.hidden=false;}else{im.hidden=true;im.removeAttribute('src');}
+    });
+  }
+  const coverInput=document.getElementById('coverInput');
+  const coverThumbImg=document.getElementById('coverThumbImg');
+  const coverRemove=document.getElementById('coverRemove');
+  if(coverInput){
+    coverInput.addEventListener('change',e=>{
+      const file=e.target.files&&e.target.files[0];if(!file)return;
+      const r=new FileReader();
+      r.onload=()=>{appCover=r.result;coverThumbImg.src=appCover;coverThumbImg.hidden=false;coverRemove.hidden=false;syncCovers();updatePreview();};
+      r.readAsDataURL(file);
+    });
+    coverRemove.addEventListener('click',()=>{
+      appCover=null;coverThumbImg.hidden=true;coverThumbImg.removeAttribute('src');coverRemove.hidden=true;coverInput.value='';
+      syncCovers();updatePreview();
+    });
+  }
+  syncCovers();
+
+  /* ---- player (waveform + controls), scoped to the listen view ---- */
+  const waveform=document.getElementById('waveform');
+  if(waveform){
+    const waveTime=document.getElementById('waveTime');
+    const BARS=88,heights=[];let seed=42;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
+    for(let i=0;i<BARS;i++){const env=Math.sin((i/BARS)*Math.PI);heights.push(Math.min(60,16+(0.35+rnd()*0.65)*44*(0.5+env*0.7)));}
+    const bars=[];heights.forEach(h=>{const b=document.createElement('span');b.className='wave-bar';b.style.height=h+'px';waveform.appendChild(b);bars.push(b);});
+    const TOTAL=24*60+26;let pos=5,playing=false,ticker=null,loop=false;
+    const fmt=s=>{const m=Math.floor(s/60),ss=String(Math.floor(s%60)).padStart(2,'0');return m+':'+ss;};
+    function render(){const lit=Math.round((pos/TOTAL)*BARS);bars.forEach((b,i)=>b.classList.toggle('lit',i<lit));waveTime.textContent=fmt(pos)+' / '+fmt(TOTAL);}
+    render();
+    const iconPlay=document.getElementById('iconPlay'),iconPause=document.getElementById('iconPause'),btnPlay=document.getElementById('btnPlay');
+    function setPlaying(st){
+      playing=st;iconPlay.style.display=st?'none':'block';iconPause.style.display=st?'block':'none';
+      btnPlay.setAttribute('aria-label',st?'Pause':'Play');
+      if(st){ticker=setInterval(()=>{pos=Math.min(TOTAL,pos+1);if(pos>=TOTAL){if(loop)pos=0;else setPlaying(false);}render();},1000);}
+      else clearInterval(ticker);
+    }
+    btnPlay.addEventListener('click',()=>setPlaying(!playing));
+    waveform.addEventListener('click',e=>{if(e.target===waveTime)return;const r=waveform.getBoundingClientRect();pos=Math.max(0,Math.min(TOTAL,Math.round(((e.clientX-r.left)/r.width)*TOTAL)));render();});
+    document.getElementById('btnBack').addEventListener('click',()=>{pos=Math.max(0,pos-30);render();});
+    document.getElementById('btnFwd').addEventListener('click',()=>{pos=Math.min(TOTAL,pos+30);render();});
+    const btnLoop=document.getElementById('btnLoop');
+    btnLoop.addEventListener('click',()=>{loop=!loop;btnLoop.classList.toggle('active',loop);btnLoop.setAttribute('aria-pressed',String(loop));});
+    const SPEEDS=[0.5,0.75,1,1.25,1.5,1.75,2];let si=2;const sb=document.getElementById('speedBadge');
+    sb.addEventListener('click',()=>{si=(si+1)%SPEEDS.length;const v=SPEEDS[si];sb.textContent=(v%1===0?v.toFixed(1):String(v))+'×';});
+    document.addEventListener('keydown',e=>{
+      if(e.target.matches('input,textarea,select'))return;
+      if(!document.body.classList.contains('view-listen'))return;
+      if(e.key==='k'){setPlaying(!playing);e.preventDefault();}
+      else if(e.key==='j'){pos=Math.max(0,pos-30);render();}
+      else if(e.key==='l'){pos=Math.min(TOTAL,pos+30);render();}
+      else if(e.key==='i'){btnLoop.click();}
+    });
+  }
+})();
+</script>
+</body>
+</html>
